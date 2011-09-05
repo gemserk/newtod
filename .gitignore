@@ -1,0 +1,13 @@
+./target
+.classpath
+.project
+.settings
+
+newtod-android/target
+newtod-android/libs/
+newtod-android/.externalToolBuilders/
+newtod-android/gen/
+
+newtod-core/target
+newtod-desktop/target
+
