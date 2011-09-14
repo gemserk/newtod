@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class Path {
 
-	Array<Segment> segments = new Array<Segment>();
+	Array<Segment> segments = new Array<Segment>(Segment.class);
 	
 	public Path(Segment...segments) {
 		if(segments.length<1)
@@ -26,7 +26,11 @@ public class Path {
 		position.set(segments.get(segments.size -1).getEnd());
 	}
 	
-	static class PathTraversal {
+	public Array<Segment> getSegments() {
+		return segments;
+	}
+	
+	public static class PathTraversal {
 		Path path;
 		
 		Vector2 currentPosition = new Vector2();
@@ -37,7 +41,7 @@ public class Path {
 		
 		public PathTraversal(Path path){
 			this.path = path;
-			this.currentSegment = path.segments.get(this.segmentIndex);
+			reset();
 		}
 		
 		public void advance(float distance){
@@ -63,6 +67,12 @@ public class Path {
 		
 		public Vector2 getPosition(){
 			return currentPosition;
+		}
+		
+		public void reset(){
+			currentDistanceInSegment = 0;
+			segmentIndex = 0;
+			this.currentSegment = path.segments.get(this.segmentIndex);
 		}
 	}
 

@@ -2,10 +2,13 @@ package com.gemserk.games.newtod.gamestates;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.gemserk.animation4j.transitions.sync.Synchronizers;
 import com.gemserk.commons.artemis.EntityBuilder;
 import com.gemserk.commons.artemis.WorldWrapper;
@@ -20,14 +23,19 @@ import com.gemserk.commons.artemis.systems.SpriteUpdateSystem;
 import com.gemserk.commons.artemis.systems.TagSystem;
 import com.gemserk.commons.artemis.templates.EntityFactoryImpl;
 import com.gemserk.commons.gdx.GameStateImpl;
+import com.gemserk.commons.gdx.GlobalTime;
 import com.gemserk.commons.gdx.box2d.Box2DCustomDebugRenderer;
 import com.gemserk.commons.gdx.box2d.JointBuilder;
 import com.gemserk.commons.gdx.camera.Libgdx2dCamera;
 import com.gemserk.commons.gdx.camera.Libgdx2dCameraTransformImpl;
+import com.gemserk.commons.gdx.graphics.ImmediateModeRendererUtils;
 import com.gemserk.componentsengine.input.InputDevicesMonitorImpl;
 import com.gemserk.componentsengine.input.LibgdxInputMappingBuilder;
 import com.gemserk.games.newtod.Game;
 import com.gemserk.games.newtod.Layers;
+import com.gemserk.games.newtod.path.Path;
+import com.gemserk.games.newtod.path.Path.PathTraversal;
+import com.gemserk.games.newtod.path.Segment;
 import com.gemserk.games.newtod.templates.EntityTemplates;
 import com.gemserk.resources.ResourceManager;
 
@@ -48,6 +56,7 @@ public class PlayGameState extends GameStateImpl {
 	private Box2DCustomDebugRenderer box2dCustomDebugRenderer;
 	private com.gemserk.games.newtod.templates.EntityTemplates entityTemplates;
 	private InputDevicesMonitorImpl<String> inputDevicesMonitor;
+	private ShapeRenderer shapeRenderer;
 
 	public PlayGameState(Game game) {
 		this.game = game;
@@ -113,11 +122,33 @@ public class PlayGameState extends GameStateImpl {
 				monitorKeys("pause", Keys.BACK, Keys.ESCAPE);
 			}
 		};
+		
+		shapeRenderer = new ShapeRenderer();
+		immediateModeRendererUtils = new ImmediateModeRendererUtils();
+		
 
 		loadLevel();
 	}
 
+	Path path;
+	PathTraversal[] entities = new PathTraversal[10]; 
+	private ImmediateModeRendererUtils immediateModeRendererUtils;
+	
 	private void loadLevel() {
+		
+		path = new Path(//
+				new Segment(new Vector2(-100,10), new Vector2(300,10)),//
+				new Segment(new Vector2(300,10), new Vector2(300,300))//
+				);
+		
+		for (int i = 0; i < entities.length; i++) {
+			PathTraversal traversal = path.getTraversal();
+			entities[i]=traversal;
+			traversal.advance(10*i);
+		}
+		
+		
+		path.getEndPosition(pathEnd);
 	}
 
 	@Override
@@ -125,14 +156,47 @@ public class PlayGameState extends GameStateImpl {
 		Gdx.graphics.getGL10().glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		worldWrapper.render();
+		
+		Array<Segment> segments = path.getSegments();
+		Segment[] segmentsArray = segments.items;
+		
+		for (int i = 0; i < segments.size; i++) {
+			Segment segment = segmentsArray[i];
+			immediateModeRendererUtils.drawLine(segment.getStart(), segment.getEnd(), Color.RED);
+		}
+		
+		for (int i = 0; i < entities.length; i++) {
+			PathTraversal pathTraversal = entities[i];
+			
+			
+			Vector2 position = pathTraversal.getPosition();
+			immediateModeRendererUtils.drawSolidCircle(position,2,Color.GREEN);
+		}
+		
+		
 
 		 if (Game.isShowBox2dDebug())
 			 box2dCustomDebugRenderer.render();
 	}
 
+	
+	Vector2 pathEnd = new Vector2();
 	@Override
 	public void update() {
 
+		for (int i = 0; i < entities.length; i++) {
+			PathTraversal pathTraversal = entities[i];
+			
+			pathTraversal.advance(150*GlobalTime.getDelta());
+			
+			Vector2 position = pathTraversal.getPosition();
+			if(position.dst(pathEnd)< 0.1f){
+				pathTraversal.reset();
+//				pathTraversal.advance(10*i);
+			}		
+		}
+		
+		
 		inputDevicesMonitor.update();
 		Synchronizers.synchronize(getDelta());
 		worldWrapper.update(getDeltaInMs());
