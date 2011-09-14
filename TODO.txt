@@ -1,0 +1,9 @@
+create path
+draw path
+make enemies follow path
+place towers
+have towers shoot enemies
+make towers cost money
+make killing enemies earn money
+...
+profit	
