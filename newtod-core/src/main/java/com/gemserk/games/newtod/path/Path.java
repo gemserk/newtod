@@ -1,5 +1,7 @@
 package com.gemserk.games.newtod.path;
 
+import java.security.InvalidParameterException;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -7,8 +9,13 @@ public class Path {
 
 	Array<Segment> segments = new Array<Segment>();
 	
-	public void addSegment(Segment segment){
-		segments.add(segment);
+	public Path(Segment...segments) {
+		if(segments.length<1)
+			throw new InvalidParameterException("You have to pass at least one segment");
+		
+		for (int i = 0; i < segments.length; i++) {
+			this.segments.add(segments[i]);
+		}
 	}
 	
 	public void getStartPosition(Vector2 position){
@@ -41,7 +48,6 @@ public class Path {
 					distance = 0;
 					break;
 				}
-				//que hago si estoy en el ultimo
 				distance -= (segmentLength - currentDistanceInSegment);
 				segmentIndex++;
 				currentSegment = path.segments.get(segmentIndex);
@@ -58,41 +64,6 @@ public class Path {
 		public Vector2 getPosition(){
 			return currentPosition;
 		}
-		
-//		float segmentLength = path.getDistanceToNextPoint(index);
-//
-//		while (segmentLength - innerDistance < distance) {
-//			if (path.isLastSegment(index)) {
-//				distance = 0;
-//				break;
-//			}
-//			index++;
-//			distanceFromOrigin += (segmentLength - innerDistance);
-//			distance -= (segmentLength - innerDistance);
-//			segmentLength = path.getDistanceToNextPoint(index);
-//			innerDistance = 0;
-//		}
-//
-//		innerDistance += distance;
-//		distanceFromOrigin += distance;
-//
-//		return new PathTraversal(path, index, innerDistance, distanceFromOrigin);
-		
-		
-		
-//		float segmentLength = currentSegment.getLength();
-//		float remainingDistance = currentDistanceInSegment + distance - segmentLength;
-//		if(remainingDistance > 0){
-//			if(segmentIndex + 1 == path.segments.size){
-//				currentDistanceInSegment = segmentLength;
-//				remainingDistance = 0;
-//			} else {
-//				segmentIndex++;
-//				currentSegment = path.segments.get(segmentIndex);
-//				currentDistanceInSegment = remainingDistance;
-//			}
-//		}
-		
 	}
 
 	public PathTraversal getTraversal() {
