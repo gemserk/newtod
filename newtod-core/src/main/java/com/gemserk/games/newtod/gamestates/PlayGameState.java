@@ -148,7 +148,7 @@ public class PlayGameState extends GameStateImpl {
 		}
 		
 		
-		path.getEndPosition(pathEnd);
+		pathEnd = path.getEndPosition();
 	}
 
 	@Override
@@ -162,7 +162,7 @@ public class PlayGameState extends GameStateImpl {
 		
 		for (int i = 0; i < segments.size; i++) {
 			Segment segment = segmentsArray[i];
-			immediateModeRendererUtils.drawLine(segment.getStart(), segment.getEnd(), Color.RED);
+			ImmediateModeRendererUtils.drawLine(segment.getStart(), segment.getEnd(), Color.RED);
 		}
 		
 		for (int i = 0; i < entities.length; i++) {
@@ -170,7 +170,7 @@ public class PlayGameState extends GameStateImpl {
 			
 			
 			Vector2 position = pathTraversal.getPosition();
-			immediateModeRendererUtils.drawSolidCircle(position,2,Color.GREEN);
+			ImmediateModeRendererUtils.drawSolidCircle(position,2,Color.GREEN);
 		}
 		
 		

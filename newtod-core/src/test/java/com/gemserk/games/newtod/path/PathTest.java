@@ -26,11 +26,8 @@ public class PathTest {
 	public void canAddOneSegment(){
 		Path path = new Path(new Segment(new Vector2(0,0), new Vector2(1,1)));
 		
-		Vector2 position = new Vector2();
-		path.getStartPosition(position);
-		assertThat((double)position.dst(0, 0), Matchers.closeTo(0, 0.1));
-		path.getEndPosition(position);
-		assertThat((double)position.dst(1, 1), Matchers.closeTo(0, 0.1));
+		assertThat((double)path.getStartPosition().dst(0, 0), Matchers.closeTo(0, 0.1));
+		assertThat((double)path.getEndPosition().dst(1, 1), Matchers.closeTo(0, 0.1));
 		
 	}
 	
@@ -38,11 +35,8 @@ public class PathTest {
 	public void canAddTwoSegment(){
 		Path path = new Path(new Segment(new Vector2(0,0), new Vector2(1,1)), new Segment(new Vector2(1,1), new Vector2(2,2)));
 		
-		Vector2 position = new Vector2();
-		path.getStartPosition(position);
-		assertThat((double)position.dst(0, 0), Matchers.closeTo(0, 0.1));
-		path.getEndPosition(position);
-		assertThat((double)position.dst(2, 2), Matchers.closeTo(0, 0.1));	
+		assertThat((double)path.getStartPosition().dst(0, 0), Matchers.closeTo(0, 0.1));
+		assertThat((double)path.getEndPosition().dst(2, 2), Matchers.closeTo(0, 0.1));	
 	}
 	
 	
@@ -75,9 +69,7 @@ public class PathTest {
 		
 		traversal.advance(10);
 		
-		Vector2 endPosition = new Vector2();
-		path.getEndPosition(endPosition);
-		assertThat((double)traversal.getPosition().dst(endPosition), Matchers.closeTo(0, 0.1));	
+		assertThat((double)traversal.getPosition().dst(path.getEndPosition()), Matchers.closeTo(0, 0.1));	
 	}
 	
 	@Test
@@ -88,9 +80,7 @@ public class PathTest {
 		
 		traversal.advance(10);
 		
-		Vector2 endPosition = new Vector2();
-		path.getEndPosition(endPosition);
-		assertThat((double)traversal.getPosition().dst(endPosition), Matchers.closeTo(0, 0.1));	
+		assertThat((double)traversal.getPosition().dst(path.getEndPosition()), Matchers.closeTo(0, 0.1));	
 	}
 	
 	

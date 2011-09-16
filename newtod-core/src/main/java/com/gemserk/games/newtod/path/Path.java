@@ -18,12 +18,12 @@ public class Path {
 		}
 	}
 	
-	public void getStartPosition(Vector2 position){
-		position.set(segments.get(0).getStart());
+	public Vector2 getStartPosition(){
+		return segments.get(0).getStart();
 	}
 	
-	public void getEndPosition(Vector2 position){
-		position.set(segments.get(segments.size -1).getEnd());
+	public Vector2 getEndPosition(){
+		return segments.get(segments.size -1).getEnd();
 	}
 	
 	public Array<Segment> getSegments() {
@@ -62,7 +62,7 @@ public class Path {
 			currentDistanceInSegment += distance;
 			currentPosition.set(currentSegment.getDirection()).mul(currentDistanceInSegment).add(currentSegment.getStart());
 			
-			
+			 
 		}
 		
 		public Vector2 getPosition(){
