@@ -1,13 +1,23 @@
 package com.gemserk.games.newtod.gamestates;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.Array;
 import com.gemserk.animation4j.transitions.sync.Synchronizers;
 import com.gemserk.commons.artemis.EntityBuilder;
@@ -149,6 +159,46 @@ public class PlayGameState extends GameStateImpl {
 		
 		
 		pathEnd = path.getEndPosition();
+		
+		stage = new Stage(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		
+
+		
+		Label label = new Label("TEST",new LabelStyle((BitmapFont) resourceManager.getResourceValue("FpsFont"),Color.RED));
+		
+		Button button = new Button(label,new ButtonStyle()){
+		 @Override
+		public void touchDragged(float x, float y, int pointer) {
+			this.x = x;
+			this.y = y;
+			System.out.println(String.format("STAGE: x: %f - y:%f - pointer: %d", x,y,pointer));
+		}	
+		};
+		button.setText("Button");
+		button.x = 100;
+		button.y = 100;
+		
+		
+		button.width = 100;
+		button.height = 100;
+		stage.addActor(button);
+		
+		System.out.println(button.width);
+		
+		InputMultiplexer inputMultiplexer = new InputMultiplexer();
+		
+		inputMultiplexer.addProcessor(new InputAdapter(){
+			@Override
+			public boolean touchDragged(int x, int y, int pointer) {
+				System.out.println(String.format("LOGGER: x: %d - y:%d - pointer: %d", x,y,pointer));
+				return false;
+			}
+		});
+		inputMultiplexer.addProcessor(stage);
+		
+		
+		Gdx.input.setInputProcessor(inputMultiplexer);
+				
 	}
 
 	@Override
@@ -173,6 +223,7 @@ public class PlayGameState extends GameStateImpl {
 			ImmediateModeRendererUtils.drawSolidCircle(position,2,Color.GREEN);
 		}
 		
+		stage.draw();
 		
 
 		 if (Game.isShowBox2dDebug())
@@ -181,6 +232,7 @@ public class PlayGameState extends GameStateImpl {
 
 	
 	Vector2 pathEnd = new Vector2();
+	private Stage stage;
 	@Override
 	public void update() {
 
@@ -195,6 +247,7 @@ public class PlayGameState extends GameStateImpl {
 //				pathTraversal.advance(10*i);
 			}		
 		}
+		
 		
 		
 		inputDevicesMonitor.update();
