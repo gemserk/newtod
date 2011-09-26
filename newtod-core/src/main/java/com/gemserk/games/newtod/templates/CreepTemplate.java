@@ -37,9 +37,9 @@ public class CreepTemplate extends EntityTemplateImpl{
 	public void apply(Entity entity) {
 		Path path = parameters.get("path");
 		final Vector2 pathEnd = path.getEndPosition();
-		final float speed = parameters.get("speed");
+		final Float speed = parameters.get("speed");
 		
-		float startDistanceInPath = parameters.get("startDistanceInPath",0f);
+		Float startDistanceInPath = parameters.get("startDistanceInPath",0f);
 		
 		
 		PathTraversal pathTraversal = path.getTraversal();
