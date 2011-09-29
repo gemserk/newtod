@@ -2,7 +2,6 @@ package com.gemserk.games.newtod.templates;
 
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
-import com.artemis.EntityManager;
 import com.artemis.World;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -13,24 +12,21 @@ import com.gemserk.commons.artemis.components.SpatialComponent;
 import com.gemserk.commons.artemis.scripts.ScriptJavaImpl;
 import com.gemserk.commons.artemis.templates.EntityTemplateImpl;
 import com.gemserk.commons.gdx.GlobalTime;
+import com.gemserk.commons.gdx.box2d.BodyBuilder;
 import com.gemserk.commons.gdx.games.SpatialPhysicsImpl;
+import com.gemserk.games.newtod.Tags;
 import com.gemserk.games.newtod.path.Path;
 import com.gemserk.games.newtod.path.Path.PathTraversal;
 import com.gemserk.games.newtod.systems.components.CreepDataComponent;
 
 public class CreepTemplate extends EntityTemplateImpl{
 
-	EntityTemplatesHelper helper;
 	ComponentMapper<CreepDataComponent> creepDataMapper;
-	private ComponentMapper<SpatialComponent> spatialMapper;
+	ComponentMapper<SpatialComponent> spatialMapper;
+	
+	BodyBuilder bodyBuilder;
+	World world;
 
-	public CreepTemplate(EntityTemplatesHelper helper) {
-		this.helper = helper;
-		World world = helper.world;
-		EntityManager entityManager = world.getEntityManager();
-		creepDataMapper = new ComponentMapper<CreepDataComponent>(CreepDataComponent.class, entityManager);
-		spatialMapper = new ComponentMapper<SpatialComponent>(SpatialComponent.class, entityManager);
-	}
 
 	@Override
 	public void apply(Entity entity) {
@@ -39,13 +35,13 @@ public class CreepTemplate extends EntityTemplateImpl{
 		final Float speed = parameters.get("speed");
 		
 		Float startDistanceInPath = parameters.get("startDistanceInPath",0f);
-		
+		Integer hitpoints = parameters.get("hitpoints");
 		
 		PathTraversal pathTraversal = path.getTraversal();
 		
 		pathTraversal.advance(startDistanceInPath);
 		
-		CreepDataComponent creepData = new CreepDataComponent(speed, pathTraversal);
+		CreepDataComponent creepData = new CreepDataComponent(speed, pathTraversal,hitpoints);
 		
 		entity.addComponent(creepData);
 		
@@ -70,11 +66,12 @@ public class CreepTemplate extends EntityTemplateImpl{
 		
 		entity.addComponent(scriptComponent);
 		
-		Body body = helper.bodyBuilder.fixture(//
-				helper.bodyBuilder.fixtureDefBuilder().circleShape(5f)).type(BodyType.StaticBody).build();
+		Body body = bodyBuilder.fixture(//
+				bodyBuilder.fixtureDefBuilder().circleShape(5f)).type(BodyType.StaticBody).build();
 		
 		entity.addComponent(new PhysicsComponent(body));
 		entity.addComponent(new SpatialComponent(new SpatialPhysicsImpl(body, 10, 10)));
+		world.getGroupManager().set(Tags.CREEPS, entity);
 	}
 	
 	/**

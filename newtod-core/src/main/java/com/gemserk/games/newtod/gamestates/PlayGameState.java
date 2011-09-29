@@ -1,7 +1,5 @@
 package com.gemserk.games.newtod.gamestates;
 
-import com.artemis.Entity;
-import com.artemis.utils.ImmutableBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
@@ -31,24 +29,25 @@ import com.gemserk.commons.artemis.systems.RenderableSystem;
 import com.gemserk.commons.artemis.systems.ScriptSystem;
 import com.gemserk.commons.artemis.systems.SpriteUpdateSystem;
 import com.gemserk.commons.artemis.systems.TagSystem;
-import com.gemserk.commons.artemis.templates.EntityFactory;
 import com.gemserk.commons.artemis.templates.EntityFactoryImpl;
 import com.gemserk.commons.gdx.GameStateImpl;
 import com.gemserk.commons.gdx.GlobalTime;
+import com.gemserk.commons.gdx.box2d.BodyBuilder;
 import com.gemserk.commons.gdx.box2d.Box2DCustomDebugRenderer;
 import com.gemserk.commons.gdx.box2d.JointBuilder;
 import com.gemserk.commons.gdx.camera.Libgdx2dCamera;
 import com.gemserk.commons.gdx.camera.Libgdx2dCameraTransformImpl;
 import com.gemserk.commons.gdx.graphics.ImmediateModeRendererUtils;
+import com.gemserk.commons.gdx.graphics.Mesh2dBuilder;
+import com.gemserk.commons.reflection.Injector;
+import com.gemserk.commons.reflection.InjectorImpl;
 import com.gemserk.componentsengine.input.InputDevicesMonitorImpl;
 import com.gemserk.componentsengine.input.LibgdxInputMappingBuilder;
 import com.gemserk.componentsengine.utils.ParametersWrapper;
 import com.gemserk.games.newtod.Game;
 import com.gemserk.games.newtod.Layers;
 import com.gemserk.games.newtod.path.Path;
-import com.gemserk.games.newtod.path.Path.PathTraversal;
 import com.gemserk.games.newtod.path.Segment;
-import com.gemserk.games.newtod.systems.components.CreepDataComponent;
 import com.gemserk.games.newtod.templates.EntityTemplates;
 import com.gemserk.games.newtod.templates.EntityTemplatesHelper;
 import com.gemserk.resources.ResourceManager;
@@ -130,7 +129,21 @@ public class PlayGameState extends GameStateImpl {
 		box2dCustomDebugRenderer = new Box2DCustomDebugRenderer((Libgdx2dCameraTransformImpl) worldCamera, physicsWorld);
 		entityTemplatesHelper = new EntityTemplatesHelper(physicsWorld, world, resourceManager, entityBuilder, entityFactory);
 
-		entityTemplates = new EntityTemplates(entityTemplatesHelper);
+		Injector injector = new InjectorImpl() {
+			{
+				bind("physicsWorld", physicsWorld);
+				bind("world", world);
+				bind("resourceManager", resourceManager);
+				bind("entityBuilder", new EntityBuilder(world));
+				bind("entityFactory", new EntityFactoryImpl(world));
+				bind("bodyBuilder", new BodyBuilder(physicsWorld));
+				bind("jointBuilder", new JointBuilder(physicsWorld));
+			}
+		};
+		
+		
+		
+		entityTemplates = new EntityTemplates(injector);
 		
 		inputDevicesMonitor = new InputDevicesMonitorImpl<String>();
 		new LibgdxInputMappingBuilder<String>(inputDevicesMonitor, Gdx.input) {
@@ -157,8 +170,10 @@ public class PlayGameState extends GameStateImpl {
 
 		
 		for (int i = 0; i < 10; i++) {
-			entityFactory.instantiate(entityTemplates.creepTemplate, new ParametersWrapper().put("path", path).put("speed", 150f).put("startDistanceInPath", 10f*i));			
+			entityFactory.instantiate(entityTemplates.creepTemplate, new ParametersWrapper().put("path", path).put("speed", 50f).put("startDistanceInPath", 10f*i).put("hitpoints", 300));			
 		}
+		
+		entityFactory.instantiate(entityTemplates.towerTemplate, new ParametersWrapper().put("position", new Vector2(100,100)));
 
 		stage = new Stage(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 
@@ -184,6 +199,7 @@ public class PlayGameState extends GameStateImpl {
 
 		InputMultiplexer inputMultiplexer = new InputMultiplexer();
 
+		inputMultiplexer.addProcessor(stage);
 		inputMultiplexer.addProcessor(new InputAdapter() {
 			@Override
 			public boolean touchDragged(int x, int y, int pointer) {
@@ -191,7 +207,6 @@ public class PlayGameState extends GameStateImpl {
 				return false;
 			}
 		});
-		inputMultiplexer.addProcessor(stage);
 
 		Gdx.input.setInputProcessor(inputMultiplexer);
 
