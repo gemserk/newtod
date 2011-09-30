@@ -14,6 +14,7 @@ import com.gemserk.commons.artemis.templates.EntityTemplateImpl;
 import com.gemserk.commons.gdx.GlobalTime;
 import com.gemserk.commons.gdx.box2d.BodyBuilder;
 import com.gemserk.commons.gdx.games.SpatialPhysicsImpl;
+import com.gemserk.games.newtod.Collisions;
 import com.gemserk.games.newtod.Tags;
 import com.gemserk.games.newtod.path.Path;
 import com.gemserk.games.newtod.path.Path.PathTraversal;
@@ -53,7 +54,7 @@ public class CreepTemplate extends EntityTemplateImpl{
 				pathTraversal.advance(speed * GlobalTime.getDelta());
 
 				Vector2 position = pathTraversal.getPosition();
-				if (position.dst(pathEnd) < 0.1f) {
+				if (position.dst(pathEnd) < 0.001f) {
 					pathTraversal.reset();
 				}
 				
@@ -67,10 +68,10 @@ public class CreepTemplate extends EntityTemplateImpl{
 		entity.addComponent(scriptComponent);
 		
 		Body body = bodyBuilder.fixture(//
-				bodyBuilder.fixtureDefBuilder().circleShape(5f)).type(BodyType.StaticBody).build();
+				bodyBuilder.fixtureDefBuilder().circleShape(0.05f)).type(BodyType.StaticBody).userData(entity).build();
 		
 		entity.addComponent(new PhysicsComponent(body));
-		entity.addComponent(new SpatialComponent(new SpatialPhysicsImpl(body, 10, 10)));
+		entity.addComponent(new SpatialComponent(new SpatialPhysicsImpl(body, 0.10f, 0.10f)));
 		world.getGroupManager().set(Tags.CREEPS, entity);
 	}
 	

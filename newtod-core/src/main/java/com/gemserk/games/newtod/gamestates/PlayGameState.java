@@ -1,5 +1,7 @@
 package com.gemserk.games.newtod.gamestates;
 
+import com.artemis.Entity;
+import com.artemis.utils.ImmutableBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
@@ -46,8 +48,10 @@ import com.gemserk.componentsengine.input.LibgdxInputMappingBuilder;
 import com.gemserk.componentsengine.utils.ParametersWrapper;
 import com.gemserk.games.newtod.Game;
 import com.gemserk.games.newtod.Layers;
+import com.gemserk.games.newtod.Tags;
 import com.gemserk.games.newtod.path.Path;
 import com.gemserk.games.newtod.path.Segment;
+import com.gemserk.games.newtod.systems.components.CreepDataComponent;
 import com.gemserk.games.newtod.templates.EntityTemplates;
 import com.gemserk.games.newtod.templates.EntityTemplatesHelper;
 import com.gemserk.resources.ResourceManager;
@@ -96,7 +100,7 @@ public class PlayGameState extends GameStateImpl {
 
 		worldCamera = new Libgdx2dCameraTransformImpl();
 		worldCamera.center(centerX, centerY);
-		float zoom = 1;
+		float zoom = 100;
 		worldCamera.zoom(zoom);
 		worldCamera.move(centerX / zoom, centerY / zoom);
 
@@ -149,6 +153,7 @@ public class PlayGameState extends GameStateImpl {
 		new LibgdxInputMappingBuilder<String>(inputDevicesMonitor, Gdx.input) {
 			{
 				monitorKeys("pause", Keys.BACK, Keys.ESCAPE);
+				monitorKey("dump", Keys.D);
 			}
 		};
 
@@ -164,16 +169,16 @@ public class PlayGameState extends GameStateImpl {
 	private void loadLevel() {
 
 		path = new Path(//
-				new Segment(new Vector2(-100, 10), new Vector2(300, 10)),//
-				new Segment(new Vector2(300, 10), new Vector2(300, 300))//
+				new Segment(new Vector2(-1.00f, 0.10f), new Vector2(3.00f, 0.10f)),//
+				new Segment(new Vector2(3.00f, 0.10f), new Vector2(3.00f, 3.00f))//
 		);
 
 		
 		for (int i = 0; i < 10; i++) {
-			entityFactory.instantiate(entityTemplates.creepTemplate, new ParametersWrapper().put("path", path).put("speed", 50f).put("startDistanceInPath", 10f*i).put("hitpoints", 300));			
+			entityFactory.instantiate(entityTemplates.creepTemplate, new ParametersWrapper().put("path", path).put("speed", 0.50f).put("startDistanceInPath", 0.10f*i).put("hitpoints", 300));			
 		}
 		
-		entityFactory.instantiate(entityTemplates.towerTemplate, new ParametersWrapper().put("position", new Vector2(100,100)));
+		entityFactory.instantiate(entityTemplates.towerTemplate, new ParametersWrapper().put("position", new Vector2(1.00f,1.00f)));
 
 		stage = new Stage(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 
@@ -220,6 +225,7 @@ public class PlayGameState extends GameStateImpl {
 
 		Array<Segment> segments = path.getSegments();
 		Segment[] segmentsArray = segments.items;
+		ImmediateModeRendererUtils.getProjectionMatrix().set(worldCamera.getCombinedMatrix());
 
 		for (int i = 0; i < segments.size; i++) {
 			Segment segment = segmentsArray[i];
@@ -244,6 +250,14 @@ public class PlayGameState extends GameStateImpl {
 		inputDevicesMonitor.update();
 		Synchronizers.synchronize(getDelta());
 		worldWrapper.update(getDeltaInMs());
+		if(inputDevicesMonitor.getButton("dump").isReleased()){
+			ImmutableBag<Entity> creeps = world.getGroupManager().getEntities(Tags.CREEPS);
+			for (int i = 0; i < creeps.size(); i++) {
+				Entity creep = creeps.get(i);
+				CreepDataComponent creepDataComponent = creep.getComponent(CreepDataComponent.class);
+				System.out.println(creep.getId() + " - " + creepDataComponent.hitpoints);
+			}
+		}
 	}
 
 	@Override

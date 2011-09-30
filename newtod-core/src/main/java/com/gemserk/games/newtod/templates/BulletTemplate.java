@@ -15,6 +15,7 @@ import com.gemserk.commons.gdx.box2d.BodyBuilder;
 import com.gemserk.commons.gdx.box2d.Contacts;
 import com.gemserk.commons.gdx.box2d.Contacts.Contact;
 import com.gemserk.commons.gdx.games.SpatialPhysicsImpl;
+import com.gemserk.games.newtod.Collisions;
 import com.gemserk.games.newtod.systems.components.CreepDataComponent;
 
 public class BulletTemplate extends EntityTemplateImpl {
@@ -42,10 +43,15 @@ public class BulletTemplate extends EntityTemplateImpl {
 					Contact contact = contacts.getContact(i);
 					Entity creep = (Entity) contact.getOtherFixture().getBody().getUserData();
 					CreepDataComponent creepData = creepDataMapper.get(e);
+					if(creepData==null)
+						continue;
+					
 					creepData.hitpoints-=1;
+					System.out.println("Hit detected");
 					if(creepData.hitpoints==0){
 						creep.delete();
 					}
+					e.delete();
 					break;
 				}
 			}
@@ -56,13 +62,13 @@ public class BulletTemplate extends EntityTemplateImpl {
 		entity.addComponent(scriptComponent);
 		
 		Body body = bodyBuilder.fixture(//
-				bodyBuilder.fixtureDefBuilder().circleShape(2f)).type(BodyType.KinematicBody).bullet().build();
+				bodyBuilder.fixtureDefBuilder().circleShape(0.02f)).type(BodyType.DynamicBody).bullet().userData(entity).build();
 		
 		body.setTransform(position.x, position.y, 0);
 		body.setLinearVelocity(direction.x * speed, direction.y * speed);
 		
 		entity.addComponent(new PhysicsComponent(body));
-		entity.addComponent(new SpatialComponent(new SpatialPhysicsImpl(body, 10, 10)));
+		entity.addComponent(new SpatialComponent(new SpatialPhysicsImpl(body, 0.04f, 0.04f)));
 		
 		
 		

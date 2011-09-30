@@ -13,9 +13,11 @@ import com.gemserk.commons.artemis.components.SpatialComponent;
 import com.gemserk.commons.artemis.scripts.ScriptJavaImpl;
 import com.gemserk.commons.artemis.templates.EntityFactory;
 import com.gemserk.commons.artemis.templates.EntityTemplateImpl;
+import com.gemserk.commons.gdx.GlobalTime;
 import com.gemserk.commons.gdx.box2d.BodyBuilder;
 import com.gemserk.commons.gdx.games.SpatialPhysicsImpl;
 import com.gemserk.componentsengine.utils.ParametersWrapper;
+import com.gemserk.games.newtod.Collisions;
 import com.gemserk.games.newtod.Tags;
 import com.gemserk.games.newtod.systems.components.CreepDataComponent;
 import com.gemserk.games.newtod.systems.components.TowerDataComponent;
@@ -38,15 +40,26 @@ public class TowerTemplate extends EntityTemplateImpl{
 		
 		
 		ScriptComponent scriptComponent = new ScriptComponent(new ScriptJavaImpl() {
+			
+			float FIRETIME = 0.1f;
+			float delay = FIRETIME;
+			
 			@Override
 			public void update(World world, Entity e) {
 				TowerDataComponent creepDataComponent  = towerDataComponent.get(e);
+				
+				delay-=GlobalTime.getDelta();
+
+				if(delay>0)
+					return;
 				
 				ImmutableBag<Entity> creeps = world.getGroupManager().getEntities(Tags.CREEPS);
 				if(creeps.isEmpty())
 					return;
 				
-				Entity creep = creeps.get(0);
+				delay = FIRETIME;
+				
+				Entity creep = creeps.get(5);
 				
 				SpatialComponent creepSpatial = spatialMapper.get(creep);
 				SpatialComponent towerSpatial = spatialMapper.get(e);
@@ -54,7 +67,7 @@ public class TowerTemplate extends EntityTemplateImpl{
 				ParametersWrapper parametersWrapper = new ParametersWrapper();
 				parametersWrapper.put("position", towerSpatial.getPosition());
 				parametersWrapper.put("direction",creepSpatial.getPosition().cpy().sub(towerSpatial.getPosition()).nor());
-				parametersWrapper.put("speed", 10000f);
+				parametersWrapper.put("speed", 20f);
 				entityFactory.instantiate(entityTemplates.bulletTemplate, parametersWrapper);
 			}
 		});
@@ -62,10 +75,10 @@ public class TowerTemplate extends EntityTemplateImpl{
 		entity.addComponent(scriptComponent);
 		
 		Body body = bodyBuilder.fixture(//
-				bodyBuilder.fixtureDefBuilder().circleShape(10f)).type(BodyType.StaticBody).position(position.x,position.y).build();
+				bodyBuilder.fixtureDefBuilder().circleShape(0.10f)).type(BodyType.StaticBody).position(position.x,position.y).build();
 		
 		entity.addComponent(new PhysicsComponent(body));
-		entity.addComponent(new SpatialComponent(new SpatialPhysicsImpl(body, 20, 20)));
+		entity.addComponent(new SpatialComponent(new SpatialPhysicsImpl(body, 0.20f, 0.20f)));
 		world.getGroupManager().set(Tags.TOWERS, entity);
 	}
 	

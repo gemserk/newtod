@@ -33,6 +33,6 @@ public class EntityTemplates {
 	
 	public final CreepTemplate creepTemplate;
 	public final TowerTemplate towerTemplate;
-	public final  EntityTemplate bulletTemplate;	
+	public final  BulletTemplate bulletTemplate;	
 	
 }
