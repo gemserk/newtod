@@ -68,7 +68,7 @@ public class CreepTemplate extends EntityTemplateImpl{
 		entity.addComponent(scriptComponent);
 		
 		Body body = bodyBuilder.fixture(//
-				bodyBuilder.fixtureDefBuilder().circleShape(0.05f)).type(BodyType.StaticBody).userData(entity).build();
+				bodyBuilder.fixtureDefBuilder().circleShape(0.05f),"creep").type(BodyType.StaticBody).userData(entity).build();
 		
 		entity.addComponent(new PhysicsComponent(body));
 		entity.addComponent(new SpatialComponent(new SpatialPhysicsImpl(body, 0.10f, 0.10f)));

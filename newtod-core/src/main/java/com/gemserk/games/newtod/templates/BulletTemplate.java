@@ -42,7 +42,9 @@ public class BulletTemplate extends EntityTemplateImpl {
 				for (int i = 0; i < contacts.getContactCount(); i++) {
 					Contact contact = contacts.getContact(i);
 					Entity creep = (Entity) contact.getOtherFixture().getBody().getUserData();
-					CreepDataComponent creepData = creepDataMapper.get(e);
+					String fixtureUserData = (String) contact.getOtherFixture().getUserData();
+					System.out.println(fixtureUserData);
+					CreepDataComponent creepData = creepDataMapper.get(creep);
 					if(creepData==null)
 						continue;
 					
@@ -62,7 +64,7 @@ public class BulletTemplate extends EntityTemplateImpl {
 		entity.addComponent(scriptComponent);
 		
 		Body body = bodyBuilder.fixture(//
-				bodyBuilder.fixtureDefBuilder().circleShape(0.02f)).type(BodyType.DynamicBody).bullet().userData(entity).build();
+				bodyBuilder.fixtureDefBuilder().circleShape(0.02f),"bullet").type(BodyType.DynamicBody).bullet().userData(entity).build();
 		
 		body.setTransform(position.x, position.y, 0);
 		body.setLinearVelocity(direction.x * speed, direction.y * speed);

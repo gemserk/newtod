@@ -175,7 +175,7 @@ public class PlayGameState extends GameStateImpl {
 
 		
 		for (int i = 0; i < 10; i++) {
-			entityFactory.instantiate(entityTemplates.creepTemplate, new ParametersWrapper().put("path", path).put("speed", 0.50f).put("startDistanceInPath", 0.10f*i).put("hitpoints", 300));			
+			entityFactory.instantiate(entityTemplates.creepTemplate, new ParametersWrapper().put("path", path).put("speed", 0.50f).put("startDistanceInPath", 0.10f*i).put("hitpoints", 10));			
 		}
 		
 		entityFactory.instantiate(entityTemplates.towerTemplate, new ParametersWrapper().put("position", new Vector2(1.00f,1.00f)));

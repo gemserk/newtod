@@ -59,7 +59,7 @@ public class TowerTemplate extends EntityTemplateImpl{
 				
 				delay = FIRETIME;
 				
-				Entity creep = creeps.get(5);
+				Entity creep = creeps.get(creeps.size()/2);
 				
 				SpatialComponent creepSpatial = spatialMapper.get(creep);
 				SpatialComponent towerSpatial = spatialMapper.get(e);
@@ -75,7 +75,7 @@ public class TowerTemplate extends EntityTemplateImpl{
 		entity.addComponent(scriptComponent);
 		
 		Body body = bodyBuilder.fixture(//
-				bodyBuilder.fixtureDefBuilder().circleShape(0.10f)).type(BodyType.StaticBody).position(position.x,position.y).build();
+				bodyBuilder.fixtureDefBuilder().circleShape(0.10f), "tower").type(BodyType.StaticBody).position(position.x,position.y).userData(entity).build();
 		
 		entity.addComponent(new PhysicsComponent(body));
 		entity.addComponent(new SpatialComponent(new SpatialPhysicsImpl(body, 0.20f, 0.20f)));
